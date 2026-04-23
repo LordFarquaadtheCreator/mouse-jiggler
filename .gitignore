@@ -129,3 +129,7 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+
+# Go executables and build artifacts
+*.exe
+mouse-jiggler
