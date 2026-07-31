@@ -1,6 +1,15 @@
-# Go build artifacts
-*.exe
-mouse-jiggler
-
 # macOS
 .DS_Store
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad/
+
+# Build artifacts
+build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+
+# Logs
+*.log
