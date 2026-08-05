@@ -33,3 +33,11 @@ osascript -e 'tell application "System Events" to get the name of every login it
 Click the menu bar icon, hit "Jiggle" to start. Click "Stop Jiggle" to stop. Quit from the same menu.
 
 Runs as a background app (`LSUIElement`) — no Dock icon, no app switcher entry.
+
+## Permissions
+
+First run requires Accessibility permission. Grant under System Settings → Privacy & Security → Accessibility.
+
+## Agents
+
+See `jiggle/AGENTS.md` for build/run/install commands and conventions for coding agents.
