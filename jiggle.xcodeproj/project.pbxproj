@@ -29,9 +29,22 @@
 		10AEB559301D030400B5C8AA /* jiggleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = jiggleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		10AEB5C001D030200B5C8AA /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AGENTS.md,
+			);
+			target = 10AEB541301D030200B5C8AA /* jiggle */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		10AEB544301D030200B5C8AA /* jiggle */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				10AEB5C001D030200B5C8AA /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
 			path = jiggle;
 			sourceTree = "<group>";
 		};
