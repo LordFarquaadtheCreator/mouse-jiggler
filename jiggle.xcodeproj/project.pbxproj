@@ -30,7 +30,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		10AEB5C001D030200B5C8AA /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		10AEB5C001D030200B5C8AA /* Exceptions for "jiggle" folder in "jiggle" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				AGENTS.md,
@@ -43,7 +43,7 @@
 		10AEB544301D030200B5C8AA /* jiggle */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				10AEB5C001D030200B5C8AA /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+				10AEB5C001D030200B5C8AA /* Exceptions for "jiggle" folder in "jiggle" target */,
 			);
 			path = jiggle;
 			sourceTree = "<group>";

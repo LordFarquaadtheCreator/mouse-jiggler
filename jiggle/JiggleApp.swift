@@ -11,7 +11,7 @@ struct JiggleApp: App {
             Button(enabled ? "Stop Jiggle" : "Jiggle") {
                 enabled.toggle()
             }
-            .keyboardShortcut("J")
+            .keyboardShortcut("J") // can we make this J + L
 
             Divider()
 
@@ -20,10 +20,10 @@ struct JiggleApp: App {
             }
             .keyboardShortcut("q")
         } label: {
-            Image("MenuBarIcon")
+            JiggleIconView(isJiggling: enabled)
         }
         .onChange(of: enabled) { _, isOn in
-            if isOn {
+            if isOn { // should jiggle timer be tied to animation ????
                 timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
                     jiggleOnce()
                 }
