@@ -10,7 +10,7 @@ struct JiggleMenuView: View {
             Button(enabled ? "Enough Jiggling" : "Get Jiggling") {
                 enabled.toggle()
             }
-            .keyboardShortcut("J") // can we make this J + L
+            .keyboardShortcut("J")
 
             Divider()
 
