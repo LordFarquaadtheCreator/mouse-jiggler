@@ -37,6 +37,7 @@ struct JiggleIconView: View {
     }
 
     private func stop() {
+		jiggleState = 0
         timer?.invalidate()
         timer = nil
     }
