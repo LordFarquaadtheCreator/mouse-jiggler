@@ -5,31 +5,31 @@ import AppKit
 struct JiggleApp: App {
     @State var enabled: Bool = false
     @State private var timer: Timer?
+    @State private var interval: TimeInterval = 5
 
     var body: some Scene {
         MenuBarExtra {
-            Button(enabled ? "Stop Jiggle" : "Jiggle") {
-                enabled.toggle()
-            }
-            .keyboardShortcut("J") // can we make this J + L
-
-            Divider()
-
-            Button("Quit") {
+            JiggleMenuView(enabled: $enabled, interval: $interval) {
                 NSApplication.shared.terminate(nil)
             }
-            .keyboardShortcut("q")
         } label: {
             JiggleIconView(isJiggling: enabled)
         }
+        .menuBarExtraStyle(.menu)
         .onChange(of: enabled) { _, isOn in
-            if isOn { // should jiggle timer be tied to animation ????
-                timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
-                    jiggleOnce()
-                }
-            } else {
-                timer?.invalidate()
-                timer = nil
+            updateTimer(isOn: isOn)
+        }
+        .onChange(of: interval) { _, _ in
+            if enabled { updateTimer(isOn: true) }
+        }
+    }
+
+    private func updateTimer(isOn: Bool) {
+        timer?.invalidate()
+        timer = nil
+        if isOn {
+            timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { _ in
+                jiggleOnce()
             }
         }
     }
