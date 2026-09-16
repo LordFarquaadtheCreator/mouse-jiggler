@@ -2,7 +2,7 @@ import SwiftUI
 
 struct JiggleIconView: View {
     let isJiggling: Bool
-    private let cycleInterval: Double = 0.1
+    private let cycleInterval: Double = 0.057
 
     @State private var jiggleState: Int = 0
     @State private var timer: Timer?
@@ -30,7 +30,7 @@ struct JiggleIconView: View {
         jiggleState = 0
         timer = Timer.scheduledTimer(withTimeInterval: cycleInterval, repeats: true) { _ in
             withAnimation(.easeInOut(duration: cycleInterval * 0.6)) {
-                jiggleState = (jiggleState + 1) % 4
+                jiggleState = (jiggleState + 1) % 8
             }
         }
     }

@@ -8,7 +8,7 @@ struct JiggleAnimation: View {
         return max(0, min(state % frames.count, frames.count - 1))
     }
 
-	let frames: [String] = ["Butt_Rest", "Butt_Up", "Butt_Rest", "Butt_Down"]
+	let frames: [String] = ["jiggle_1", "jiggle_2", "jiggle_3", "jiggle_4", "jiggle_5", "jiggle_6", "jiggle_7", "jiggle_8"]
 	
     private var currentImageName: String {
         guard frames.indices.contains(clampedState) else { return frames.first ?? "" }
@@ -35,7 +35,7 @@ struct JiggleAnimation_Previews: PreviewProvider {
         @State private var timer: Timer? = nil
 
         // Adjust this to change the speed in the preview.
-        @State private var cycleInterval: Double = 0.6
+        @State private var cycleInterval: Double = 0.3
 
         var body: some View {
             VStack(spacing: 16) {
@@ -44,7 +44,7 @@ struct JiggleAnimation_Previews: PreviewProvider {
 
                 HStack {
                     Text("Interval: \(cycleInterval, specifier: "%.2f")s")
-                    Slider(value: $cycleInterval, in: 0.1...2.0, step: 0.05)
+					Slider(value: $cycleInterval, in: 0.05...0.5, step: 0.01)
                         .frame(maxWidth: 220)
                 }
             }
@@ -60,7 +60,7 @@ struct JiggleAnimation_Previews: PreviewProvider {
             stopTimer()
             timer = Timer.scheduledTimer(withTimeInterval: cycleInterval, repeats: true) { _ in
                 withAnimation(.easeInOut(duration: cycleInterval * 0.6)) {
-                    state = (state + 1) % 4
+                    state = (state + 1) % 8
                 }
             }
         }
@@ -85,9 +85,14 @@ struct JiggleAnimation_Previews: PreviewProvider {
                     .frame(width: 160, height: 160)
 
                 Picker("State", selection: $state) {
-                    Text("0 - rest").tag(0)
-                    Text("1 - up").tag(1)
-                    Text("2 - down").tag(3)
+                    Text("1").tag(0)
+                    Text("2").tag(1)
+                    Text("3").tag(2)
+                    Text("4").tag(3)
+                    Text("5").tag(4)
+                    Text("6").tag(5)
+                    Text("7").tag(6)
+                    Text("8").tag(7)
                 }
                 .pickerStyle(.segmented)
                 .frame(maxWidth: 300)
