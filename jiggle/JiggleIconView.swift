@@ -6,16 +6,22 @@ struct JiggleIconView: View {
 
     @State private var jiggleState: Int = 0
     @State private var timer: Timer?
+    @State private var isHovering: Bool = false
 
     var body: some View {
         JiggleAnimation(state: $jiggleState)
             .frame(width: 64, height: 64)
-            .onAppear {
-                if isJiggling { start() }
+            .onHover { hovering in
+                isHovering = hovering
+                if hovering {
+                    playOnce()
+                } else {
+                    reset()
+                }
             }
             .onChange(of: isJiggling) { _, on in
                 if on {
-                    start()
+                    startContinuous()
                 } else {
                     stop()
                 }
@@ -25,7 +31,25 @@ struct JiggleIconView: View {
             }
     }
 
-    private func start() {
+    private func playOnce() {
+        stop()
+        jiggleState = 0
+        var frame = 0
+        timer = Timer.scheduledTimer(withTimeInterval: cycleInterval, repeats: true) { _ in
+            withAnimation(.easeInOut(duration: cycleInterval * 0.6)) {
+                frame += 1
+                if frame >= 8 {
+                    timer?.invalidate()
+                    timer = nil
+                    jiggleState = 0
+                } else {
+                    jiggleState = frame
+                }
+            }
+        }
+    }
+
+    private func startContinuous() {
         guard timer == nil else { return }
         jiggleState = 0
         timer = Timer.scheduledTimer(withTimeInterval: cycleInterval, repeats: true) { _ in
@@ -36,15 +60,19 @@ struct JiggleIconView: View {
     }
 
     private func stop() {
-        jiggleState = 0
         timer?.invalidate()
         timer = nil
+    }
+
+    private func reset() {
+        stop()
+        jiggleState = 0
     }
 }
 
 #Preview {
     VStack() {
-        JiggleIconView(isJiggling: true)
+        JiggleIconView(isJiggling: false)
             .padding()
         HStack() {
             JiggleIconView(isJiggling: true)
@@ -52,5 +80,4 @@ struct JiggleIconView: View {
         }
         .background(Color.black)
     }
-
 }
