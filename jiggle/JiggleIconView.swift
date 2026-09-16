@@ -2,16 +2,14 @@ import SwiftUI
 
 struct JiggleIconView: View {
     let isJiggling: Bool
+    private let cycleInterval: Double = 0.1
 
     @State private var jiggleState: Int = 0
     @State private var timer: Timer?
-    private let jiggleStates: [String] = ["JiggleBase", "JiggleUp"]
-    private let interval: TimeInterval = 1 // sec
 
     var body: some View {
-        Image(jiggleStates[jiggleState])
-            .id(jiggleState)
-            .transition(.opacity)
+        JiggleAnimation(state: $jiggleState)
+            .frame(width: 64, height: 64)
             .onAppear {
                 if isJiggling { start() }
             }
@@ -29,29 +27,30 @@ struct JiggleIconView: View {
 
     private func start() {
         guard timer == nil else { return }
-        timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { _ in
-            withAnimation(.easeInOut(duration: interval)) {
-				jiggleState = (jiggleState + 1) % jiggleStates.count
+        jiggleState = 0
+        timer = Timer.scheduledTimer(withTimeInterval: cycleInterval, repeats: true) { _ in
+            withAnimation(.easeInOut(duration: cycleInterval * 0.6)) {
+                jiggleState = (jiggleState + 1) % 4
             }
         }
     }
 
     private func stop() {
-		jiggleState = 0
+        jiggleState = 0
         timer?.invalidate()
         timer = nil
     }
 }
 
 #Preview {
-	VStack() {
-		JiggleIconView(isJiggling: true)
-			.padding()
-		HStack() {
-			JiggleIconView(isJiggling: true)
-				.padding()
-		}
-		.background(Color.black)
-	}
-    
+    VStack() {
+        JiggleIconView(isJiggling: true)
+            .padding()
+        HStack() {
+            JiggleIconView(isJiggling: true)
+                .padding()
+        }
+        .background(Color.black)
+    }
+
 }
