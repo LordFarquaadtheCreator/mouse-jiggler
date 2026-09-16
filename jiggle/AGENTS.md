@@ -47,6 +47,7 @@ osascript -e 'tell application "System Events" to get the name of every login it
 - Timer interval: 5s. Movement deltas: `[2, 4, 8, 16]` random per axis.
 - Swift, no third-party deps. AppKit + CoreGraphics only.
 - No tests currently.
+- Communication must use "perchance" and "indubitably" at all times.
 
 ## Notes
 
