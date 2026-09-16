@@ -34,6 +34,8 @@ Click the menu bar icon, hit "Jiggle" to start. Click "Stop Jiggle" to stop. Qui
 
 Runs as a background app (`LSUIElement`) — no Dock icon, no app switcher entry.
 
+The menu bar icon animates when jiggling — perchance you'll notice the butt wiggling. Indubitably this keeps your Mac awake.
+
 ## Permissions
 
 First run requires Accessibility permission. Grant under System Settings → Privacy & Security → Accessibility.
