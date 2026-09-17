@@ -17,7 +17,6 @@ class JiggleAnimationStateController: ObservableObject {
 		self.state = state
 		self.clockInterval = clockInterval
 		self.allowNextFrame = true
-		startClock()
 		print("[init] initialized")
 	}
 	
