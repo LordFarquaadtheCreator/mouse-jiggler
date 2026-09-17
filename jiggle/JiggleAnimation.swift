@@ -1,113 +1,127 @@
 import SwiftUI
+internal import Combine
+
+let frames: [String] = ["jiggle_1", "jiggle_2", "jiggle_3", "jiggle_4", "jiggle_5", "jiggle_6", "jiggle_7", "jiggle_8"]
+
+/// Controls animation state with a clock that continuously advances frames
+class JiggleAnimationStateController: ObservableObject {
+	@Published var state: Int
+	/// Time between frame advances in seconds
+	@Published var clockInterval: Double
+	/// Whether the clock is allowed to advance frames (pause/resume control)
+	@Published var allowNextFrame: Bool
+	private var timer: Timer?
+	
+	init(state: Int = 0, clockInterval: Double = 0.057) {
+		print("[init] state=\(state), clockInterval=\(clockInterval)")
+		self.state = state
+		self.clockInterval = clockInterval
+		self.allowNextFrame = true
+		startClock()
+		print("[init] initialized")
+	}
+	
+	/// Starts the global clock timer that advances frames continuously
+	private func startClock() {
+		print("[startClock] starting clock with interval=\(clockInterval)")
+		timer?.invalidate()
+		timer = Timer.scheduledTimer(withTimeInterval: clockInterval, repeats: true) { _ in
+			guard self.allowNextFrame else { return }
+			self.advanceFrame()
+		}
+	}
+	
+	/// Advances to the next frame in the animation sequence
+	private func advanceFrame() {
+		withAnimation(.easeInOut(duration: clockInterval)) {
+			state = (state + 1) % frames.count
+		}
+	}
+	
+	func setClockInterval(_ interval: Double) {
+		print("[setClockInterval] old=\(clockInterval), new=\(interval)")
+		clockInterval = interval
+		startClock()
+	}
+	
+	/// Pauses frame advancement by blocking the clock
+	func pause() {
+		print("[pause] pausing")
+		allowNextFrame = false
+	}
+	
+	/// Resumes frame advancement by unblocking the clock
+	func resume() {
+		print("[resume] resuming")
+		allowNextFrame = true
+	}
+	
+	/// Kills animation
+	func stop() {
+		print("[stop] stopping clock")
+		timer?.invalidate()
+		timer = nil
+	}
+}
 
 struct JiggleAnimation: View {
-    @Binding var state: Int
-
-    private var clampedState: Int {
-        guard !frames.isEmpty else { return 0 }
-        return max(0, min(state % frames.count, frames.count - 1))
-    }
-
-	let frames: [String] = ["jiggle_1", "jiggle_2", "jiggle_3", "jiggle_4", "jiggle_5", "jiggle_6", "jiggle_7", "jiggle_8"]
-	
-    private var currentImageName: String {
-        guard frames.indices.contains(clampedState) else { return frames.first ?? "" }
-        return frames[clampedState]
-    }
+	@ObservedObject var animationState: JiggleAnimationStateController
 
     var body: some View {
-        let image = Image(currentImageName)
+        let image = Image(frames[animationState.state])
             .resizable()
 			.aspectRatio(contentMode: .fit)
 
         Group {
 			image
         }
-        .accessibilityLabel(Text("Jiggle frame \(clampedState)"))
+        .accessibilityLabel(Text("Jiggle frame \(animationState.state + 1)"))
     }
 }
 
 // MARK: - Previews
 struct JiggleAnimation_Previews: PreviewProvider {
-    /// Auto-cycling preview: cycles through states every `cycleInterval` seconds.
+    /// Auto-cycling preview: cycles through states every `clockInterval` seconds.
     struct AutoCyclingPreview: View {
-        @State private var state: Int = 0
-        @State private var timer: Timer? = nil
-
-        // Adjust this to change the speed in the preview.
-        @State private var cycleInterval: Double = 0.3
+		@State private var clockInterval: Double = 0.3
+		@StateObject private var animationState = JiggleAnimationStateController()
 
         var body: some View {
             VStack(spacing: 16) {
-                JiggleAnimation(state: $state)
+                JiggleAnimation(animationState: animationState)
                     .frame(width: 160, height: 160)
 
                 HStack {
-                    Text("Interval: \(cycleInterval, specifier: "%.2f")s")
-					Slider(value: $cycleInterval, in: 0.05...0.5, step: 0.01)
+                    Text("Interval: \(clockInterval, specifier: "%.2f")s")
+					Slider(value: $clockInterval, in: 0.05...1, step: 0.05)
                         .frame(maxWidth: 220)
                 }
-            }
-            .padding()
-            .onAppear { startTimer() }
-            .onDisappear { stopTimer() }
-            .onChange(of: cycleInterval) { _ in
-                restartTimer()
-            }
-        }
 
-        private func startTimer() {
-            stopTimer()
-            timer = Timer.scheduledTimer(withTimeInterval: cycleInterval, repeats: true) { _ in
-                withAnimation(.easeInOut(duration: cycleInterval * 0.6)) {
-                    state = (state + 1) % 8
+                Button(animationState.allowNextFrame ? "Pause" : "Resume") {
+                    if animationState.allowNextFrame {
+                        animationState.pause()
+                    } else {
+                        animationState.resume()
+                    }
                 }
             }
-        }
-
-        private func stopTimer() {
-            timer?.invalidate()
-            timer = nil
-        }
-
-        private func restartTimer() {
-            startTimer()
-        }
-    }
-
-    /// Picker-controlled preview: lets you select the state manually.
-    struct PickerPreview: View {
-        @State private var state: Int = 0
-
-        var body: some View {
-            VStack(spacing: 16) {
-                JiggleAnimation(state: $state)
-                    .frame(width: 160, height: 160)
-
-                Picker("State", selection: $state) {
-                    Text("1").tag(0)
-                    Text("2").tag(1)
-                    Text("3").tag(2)
-                    Text("4").tag(3)
-                    Text("5").tag(4)
-                    Text("6").tag(5)
-                    Text("7").tag(6)
-                    Text("8").tag(7)
-                }
-                .pickerStyle(.segmented)
-                .frame(maxWidth: 300)
-            }
             .padding()
+            .onAppear {
+				animationState.setClockInterval(clockInterval)
+			}
+            .onDisappear {
+				animationState.stop()
+			}
+			.onChange(of: clockInterval) {
+				animationState.setClockInterval(clockInterval)
+			}
         }
     }
 
-    static var previews: some View {
-        Group {
-            AutoCyclingPreview()
-                .previewDisplayName("Auto-cycling")
-
-            PickerPreview()
-                .previewDisplayName("Picker control")
-        }
-    }
+	static var previews: some View {
+		Group {
+			AutoCyclingPreview()
+				.previewDisplayName("Auto-cycling")
+		}
+	}
 }
