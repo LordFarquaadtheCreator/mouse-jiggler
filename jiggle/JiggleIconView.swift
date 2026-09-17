@@ -1,5 +1,6 @@
 import SwiftUI
 
+// Displays and animates the jiggle icon
 struct JiggleIconView: View {
     let isJiggling: Bool
     private let cycleInterval: Double = 0.057
