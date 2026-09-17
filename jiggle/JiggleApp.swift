@@ -6,14 +6,15 @@ struct JiggleApp: App {
     @State var enabled: Bool = false
     @State private var timer: Timer?
     @State private var interval: TimeInterval = 5
+    @State private var animationSpeedMultiplier: Double = 1.0
 
     var body: some Scene {
         MenuBarExtra {
-            JiggleMenuView(enabled: $enabled, interval: $interval) {
+            JiggleMenuView(enabled: $enabled, interval: $interval, animationSpeedMultiplier: $animationSpeedMultiplier) {
                 NSApplication.shared.terminate(nil)
             }
         } label: {
-            JiggleIconView(isJiggling: enabled)
+            JiggleIconView(isJiggling: enabled, animationSpeedMultiplier: animationSpeedMultiplier)
         }
         .menuBarExtraStyle(.menu)
         .onChange(of: enabled) { _, isOn in
