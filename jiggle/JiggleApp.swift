@@ -14,7 +14,7 @@ struct JiggleApp: App {
                 NSApplication.shared.terminate(nil)
             }
         } label: {
-            JiggleIconView(isJiggling: enabled, animationSpeedMultiplier: animationSpeedMultiplier)
+			JiggleIconView(isJiggling: enabled, animationSpeedMultiplier: animationSpeedMultiplier)
         }
         .menuBarExtraStyle(.menu)
         .onChange(of: enabled) { _, isOn in

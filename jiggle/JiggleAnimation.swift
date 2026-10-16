@@ -1,63 +1,58 @@
 import SwiftUI
 internal import Combine
 
-let frames: [String] = ["jiggle_1", "jiggle_2", "jiggle_3", "jiggle_4", "jiggle_5", "jiggle_6", "jiggle_7", "jiggle_8"]
+let frames: [String] = (1...8).map { "jiggle_\($0)" }
 
-/// Controls animation state with a clock that continuously advances frames
-class JiggleAnimationStateController: ObservableObject {
-	@Published var state: Int
-	/// Time between frame advances in seconds
+extension NSImage {
+	func resizedForMenuBar(height: CGFloat) -> NSImage {
+		let aspect = size.width / size.height
+		let newSize = NSSize(width: height * aspect, height: height)
+		let image = NSImage(size: newSize, flipped: false) { rect in
+			self.draw(in: rect)
+			return true
+		}
+		return image
+	}
+}
+
+@MainActor
+final class JiggleAnimationStateController: ObservableObject {
+	@Published var state: Int = 0
 	@Published var clockInterval: Double
-	/// Whether the clock is allowed to advance frames (pause/resume control)
-	@Published var allowNextFrame: Bool
+	@Published var allowNextFrame = true
+	
+	/// Resized once at init, reused for every tick.
+	let menuBarImages: [NSImage]
 	private var timer: Timer?
 	
-	init(state: Int = 0, clockInterval: Double = 0.057) {
-		print("[init] state=\(state), clockInterval=\(clockInterval)")
-		self.state = state
+	init(clockInterval: Double = 0.057,
+		 iconHeight: CGFloat = NSStatusBar.system.thickness - 6) {
 		self.clockInterval = clockInterval
-		self.allowNextFrame = true
-		print("[init] initialized")
-	}
-	
-	/// Starts the global clock timer that advances frames continuously
-	private func startClock() {
-		print("[startClock] starting clock with interval=\(clockInterval)")
-		timer?.invalidate()
-		timer = Timer.scheduledTimer(withTimeInterval: clockInterval, repeats: true) { _ in
-			guard self.allowNextFrame else { return }
-			self.advanceFrame()
+		self.menuBarImages = frames.compactMap {
+			NSImage(named: $0)?.resizedForMenuBar(height: iconHeight)
 		}
+		startClock()
 	}
 	
-	/// Advances to the next frame in the animation sequence
-	private func advanceFrame() {
-		withAnimation(.easeInOut(duration: clockInterval)) {
-			state = (state + 1) % frames.count
+	private func startClock() {
+		timer?.invalidate()
+		timer = Timer.scheduledTimer(withTimeInterval: clockInterval, repeats: true) { [weak self] _ in
+			MainActor.assumeIsolated {
+				guard let self, self.allowNextFrame, !self.menuBarImages.isEmpty else { return }
+				self.state = (self.state + 1) % self.menuBarImages.count
+			}
 		}
 	}
 	
 	func setClockInterval(_ interval: Double) {
-		print("[setClockInterval] old=\(clockInterval), new=\(interval)")
 		clockInterval = interval
 		startClock()
 	}
 	
-	/// Pauses frame advancement by blocking the clock
-	func pause() {
-		print("[pause] pausing")
-		allowNextFrame = false
-	}
+	func pause()  { allowNextFrame = false }
+	func resume() { allowNextFrame = true }
 	
-	/// Resumes frame advancement by unblocking the clock
-	func resume() {
-		print("[resume] resuming")
-		allowNextFrame = true
-	}
-	
-	/// Kills animation
 	func stop() {
-		print("[stop] stopping clock")
 		timer?.invalidate()
 		timer = nil
 	}
@@ -65,18 +60,15 @@ class JiggleAnimationStateController: ObservableObject {
 
 struct JiggleAnimation: View {
 	@ObservedObject var animationState: JiggleAnimationStateController
-
-    var body: some View {
-        let image = Image(frames[animationState.state])
-            .resizable()
-			.aspectRatio(contentMode: .fit)
-
-        Group {
-			image
-        }
-        .accessibilityLabel(Text("Jiggle frame \(animationState.state + 1)"))
-    }
+	
+	var body: some View {
+		if animationState.menuBarImages.indices.contains(animationState.state) {
+			Image(nsImage: animationState.menuBarImages[animationState.state])
+				.accessibilityLabel(Text("Jiggle frame \(animationState.state + 1)"))
+		}
+	}
 }
+
 
 // MARK: - Previews
 struct JiggleAnimation_Previews: PreviewProvider {
