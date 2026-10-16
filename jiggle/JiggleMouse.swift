@@ -1,7 +1,8 @@
 import CoreGraphics
 
+// TODO: add intensity slider which changes movements arr
 func jiggleOnce() {
-    let movements: [CGFloat] = [2, 4, 8, 16]
+    let movements: [CGFloat] = [1, 2, 4]
     let dx = movements.randomElement()!
     let dy = movements.randomElement()!
 
