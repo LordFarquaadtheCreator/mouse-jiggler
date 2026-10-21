@@ -24,6 +24,7 @@ final class JiggleAnimationStateController: ObservableObject {
 	/// Resized once at init, reused for every tick.
 	let menuBarImages: [NSImage]
 	private var timer: Timer?
+	private(set) var isRunning = false
 	
 	init(clockInterval: Double = 0.057,
 		 iconHeight: CGFloat = NSStatusBar.system.thickness - 6) {
@@ -31,7 +32,6 @@ final class JiggleAnimationStateController: ObservableObject {
 		self.menuBarImages = frames.compactMap {
 			NSImage(named: $0)?.resizedForMenuBar(height: iconHeight)
 		}
-		startClock()
 	}
 	
 	private func startClock() {
@@ -44,8 +44,16 @@ final class JiggleAnimationStateController: ObservableObject {
 		}
 	}
 	
+	/// Only animates while running; an idle app keeps the rest frame.
+	func start() {
+		guard !isRunning else { return }
+		isRunning = true
+		startClock()
+	}
+	
 	func setClockInterval(_ interval: Double) {
 		clockInterval = interval
+		guard isRunning else { return }
 		startClock()
 	}
 	
@@ -53,8 +61,10 @@ final class JiggleAnimationStateController: ObservableObject {
 	func resume() { allowNextFrame = true }
 	
 	func stop() {
+		isRunning = false
 		timer?.invalidate()
 		timer = nil
+		state = 0
 	}
 }
 
@@ -99,6 +109,7 @@ struct JiggleAnimation_Previews: PreviewProvider {
             .padding()
             .onAppear {
 				animationState.setClockInterval(clockInterval)
+				animationState.start()
 			}
             .onDisappear {
 				animationState.stop()

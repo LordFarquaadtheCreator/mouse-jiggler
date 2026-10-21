@@ -10,25 +10,28 @@ struct JiggleIconView: View {
     var body: some View {
         JiggleAnimation(animationState: animationState)
             .frame(width: 64, height: 64)
-            .onChange(of: isJiggling) { _, on in
-                if on {
-                    let baseInterval = 0.057
-                    let adjustedInterval = baseInterval / animationSpeedMultiplier
-                    animationState.setClockInterval(adjustedInterval)
-                } else {
-					animationState.stop()
-                }
+            .onAppear {
+                syncAnimation()
             }
-            .onChange(of: animationSpeedMultiplier) { _, multiplier in
-                if isJiggling {
-                    let baseInterval = 0.057
-                    let adjustedInterval = baseInterval / multiplier
-                    animationState.setClockInterval(adjustedInterval)
-                }
+            .onChange(of: isJiggling) { _, _ in
+                syncAnimation()
+            }
+            .onChange(of: animationSpeedMultiplier) { _, _ in
+                syncAnimation()
             }
             .onDisappear {
                 animationState.stop()
             }
+    }
+
+    /// Applies the current state at launch too, not only on later changes.
+    private func syncAnimation() {
+        animationState.setClockInterval(0.057 / animationSpeedMultiplier)
+        if isJiggling {
+            animationState.start()
+        } else {
+            animationState.stop()
+        }
     }
 }
 
